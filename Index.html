@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Babel Gavel: Language Triangle</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600&family=Literata:opsz,wght@7..72,400;7..72,500;7..72,700&display=swap" rel="stylesheet">
+<style>
+:root{
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+  --paper:#EEF1F5; --card:#FFFFFF; --ink:#17202C; --muted:#586473; --rule:#D3DAE3; --accent:#23479A;
+  --c-subject:#2A64B0; --c-verb:#C23A2F; --c-aux:#7B4DB3; --c-neg:#A86300; --c-object:#14806E;
+  --c-adverb:#587A12; --c-particle:#8A6D3B; --c-other:#737D8A;
+  --serif:"Literata", Georgia, "Apple SD Gothic Neo", "Malgun Gothic", "Noto Sans KR", serif;
+  --sans:"Instrument Sans", system-ui, -apple-system, "Segoe UI", "Apple SD Gothic Neo", "Malgun Gothic", "Noto Sans KR", sans-serif;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --paper:#11151B; --card:#1A2029; --ink:#E5E9EF; --muted:#9BA6B4; --rule:#2D3541; --accent:#9DB6FF;
+    --c-subject:#83ABEA; --c-verb:#F2877C; --c-aux:#BC9AEB; --c-neg:#E8AA4C; --c-object:#55C4AF;
+    --c-adverb:#A7C75E; --c-particle:#CDAE7C; --c-other:#9AA4B1;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#11151B; --card:#1A2029; --ink:#E5E9EF; --muted:#9BA6B4; --rule:#2D3541; --accent:#9DB6FF;
+  --c-subject:#83ABEA; --c-verb:#F2877C; --c-aux:#BC9AEB; --c-neg:#E8AA4C; --c-object:#55C4AF;
+  --c-adverb:#A7C75E; --c-particle:#CDAE7C; --c-other:#9AA4B1;
+}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*::before,*::after{box-sizing:inherit}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.5}
+.wrap{max-width:1180px;margin:0 auto;padding:0 20px 64px}
+button{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+/* top */
+.top{display:flex;justify-content:space-between;align-items:baseline;gap:16px;padding:28px 0 8px;flex-wrap:wrap}
+.brand{font-family:var(--serif);font-weight:700;font-size:1.15rem;margin:0}
+.brand span{font-weight:400;color:var(--muted);font-family:var(--sans);font-size:.95rem;margin-left:10px}
+
+/* sentence picker */
+.picker{display:flex;gap:8px;overflow-x:auto;padding:14px 0 6px;scrollbar-width:thin}
+.picker button{flex:0 0 auto;background:transparent;border:1px solid var(--rule);border-radius:999px;padding:7px 14px;cursor:pointer;text-align:left;white-space:nowrap}
+.picker button small{color:var(--muted);margin-right:8px;font-size:.8rem}
+.picker button[aria-pressed="true"]{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.picker button[aria-pressed="true"] small{color:inherit;opacity:.7}
+
+/* hero */
+.hero{padding:30px 0 22px}
+.hero h1{font-family:var(--serif);font-weight:500;font-size:clamp(2.2rem,6.4vw,4.4rem);line-height:1.1;margin:0 0 14px;letter-spacing:-.01em}
+.hero h1 .ew{display:inline-block;margin-right:.26em;border-bottom:.08em solid var(--role);padding-bottom:.02em}
+.hero-meta{display:flex;flex-wrap:wrap;gap:10px 24px;align-items:center;color:var(--muted);max-width:780px}
+.hero-meta strong{color:var(--ink);font-weight:600}
+.actions{display:flex;gap:10px;margin-top:16px;flex-wrap:wrap}
+.btn{border:1px solid var(--rule);background:var(--card);border-radius:8px;padding:8px 14px;cursor:pointer;font-weight:500}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--paper)}
+
+.legend{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:.85rem;color:var(--muted);margin:6px 0 22px}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:2px;background:var(--role);margin-right:6px;vertical-align:-1px}
+
+/* cards */
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px}
+@media (max-width:780px){.grid{grid-template-columns:1fr}}
+.card{background:var(--card);border:1px solid var(--rule);border-radius:12px;padding:20px 20px 16px;min-width:0}
+.card.nl{grid-column:1/-1;display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:8px 32px}
+@media (max-width:780px){.card.nl{grid-template-columns:1fr}}
+.card h2{font-family:var(--serif);font-size:1.25rem;font-weight:700;margin:0;display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.card h2 span{font-family:var(--sans);font-weight:400;font-size:.92rem;color:var(--muted)}
+.sub{font-size:.85rem;color:var(--muted);margin:14px 0 6px}
+
+.il{display:flex;flex-wrap:wrap;gap:6px 16px;margin:14px 0 4px}
+.il div{display:flex;flex-direction:column}
+.il b{font-family:var(--serif);font-weight:500;font-size:1.5rem;line-height:1.2}
+.il small{font-size:.74rem;color:var(--muted);letter-spacing:.01em}
+.natural{font-family:var(--serif);font-size:1.5rem;margin:10px 0 2px}
+.back{color:var(--muted);font-size:.9rem;margin:0}
+.contrast{border-left:3px solid var(--accent);padding:2px 0 2px 12px;margin:14px 0 4px;font-size:.95rem}
+
+.row{display:flex;flex-wrap:wrap;gap:6px;min-height:56px;align-items:flex-start;padding:8px 0}
+.chip{--bg:color-mix(in srgb,var(--role) 13%,var(--card));display:inline-flex;flex-direction:column;background:var(--bg);border-bottom:3px solid var(--role);border-radius:6px;padding:5px 9px 4px;line-height:1.15;will-change:transform}
+.chip b{font-family:var(--serif);font-weight:500;font-size:1.02rem}
+.chip small{font-size:.7rem;color:var(--muted)}
+.chip.moved{box-shadow:0 0 0 2px var(--role)}
+.chip.gone b{opacity:.45}
+
+.stepper{display:flex;align-items:center;gap:8px;margin-top:4px}
+.stepper button{border:1px solid var(--rule);background:transparent;border-radius:6px;width:32px;height:30px;cursor:pointer}
+.stepper button:disabled{opacity:.35;cursor:default}
+.stepper .lbl{font-size:.9rem;font-weight:600}
+.stepper .cnt{font-size:.8rem;color:var(--muted);margin-left:auto}
+.note{font-size:.88rem;color:var(--muted);margin:6px 0 0;min-height:2.6em}
+ol.steps{list-style:none;padding:0;margin:10px 0 0;display:flex;flex-wrap:wrap;gap:4px}
+ol.steps button{border:0;background:transparent;border-radius:5px;padding:3px 7px;font-size:.78rem;color:var(--muted);cursor:pointer}
+ol.steps button[aria-current="step"]{background:color-mix(in srgb,var(--accent) 16%,transparent);color:var(--ink);font-weight:600}
+select{font:inherit;background:var(--card);color:var(--ink);border:1px solid var(--rule);border-radius:6px;padding:5px 8px}
+
+/* contrast table */
+.table-sec{margin-top:48px}
+.table-sec h2{font-family:var(--serif);font-weight:500;font-size:1.8rem;margin:0 0 6px}
+.table-sec p{color:var(--muted);margin:0 0 16px;max-width:680px}
+.scroll{overflow-x:auto;border:1px solid var(--rule);border-radius:12px;background:var(--card)}
+table{border-collapse:collapse;min-width:900px;width:100%;font-size:.9rem}
+th,td{text-align:left;vertical-align:top;padding:12px 14px;border-bottom:1px solid var(--rule)}
+tr:last-child td,tr:last-child th{border-bottom:0}
+thead th{font-weight:600;font-size:.85rem;color:var(--muted)}
+tbody th{font-family:var(--serif);font-weight:500;font-size:1rem;width:150px}
+td.nlcol{background:color-mix(in srgb,var(--accent) 7%,transparent)}
+td em{font-style:normal;font-family:var(--serif);display:block;margin-top:4px}
+footer{margin-top:36px;font-size:.84rem;color:var(--muted);max-width:760px}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <p class="brand">Babel Gavel <span>Quest 3: one English sentence, five rule sets</span></p>
+  </header>
+
+  <nav class="picker" id="picker" aria-label="Test sentences"></nav>
+
+  <section class="hero">
+    <h1 id="enSentence"></h1>
+    <div class="hero-meta" id="heroMeta"></div>
+    <div class="actions">
+      <button class="btn primary" id="playBtn">Play all steps</button>
+      <button class="btn" id="copyBtn">Copy for Quest Journal</button>
+    </div>
+  </section>
+
+  <div class="legend" id="legend"></div>
+
+  <main class="grid" id="grid"></main>
+
+  <section class="table-sec">
+    <h2>Four contrasts with Dutch</h2>
+    <p>Each row takes one Dutch rule and shows what the other four languages do instead, with an example from the test sentences.</p>
+    <div class="scroll">
+      <table>
+        <thead><tr><th></th><th>Dutch</th><th>Korean</th><th>Turkish</th><th>French</th><th>Slovak</th></tr></thead>
+        <tbody id="tbody"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <footer>
+    Like the original Java tool, the word lists cover only these five sentences, and each language's rules run one after another on a word-for-word translation. Roles Object, Adverb and Particle extend the five Babel Gavel roles so the other languages can be described. Slovak examples use masculine forms (a female speaker says <i>rada</i>, <i>pracovala</i>).
+  </footer>
+</div>
+
+<script>
+/* ---------- roles ---------- */
+const ROLE_VAR = {Subject:'subject',Verb:'verb',Auxiliary:'aux',Negation:'neg',Object:'object',Adverb:'adverb',Particle:'particle',Other:'other'};
+const roleStyle = r => `--role:var(--c-${ROLE_VAR[r]||'other'})`;
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+let uid = 0;
+const T = (w, role, en, gl, x = {}) => ({w, role, en, gl, ...x});
+
+/* ---------- test sentences (one verification sentence per Dutch rule) ---------- */
+const S = [
+  {rule:1, name:'Verb Second (V2)', en:[['I','Subject'],['often','Adverb'],['see','Verb'],['her','Object']],
+   nlDesc:'Find the Verb. If it sits past index 1, move it to index 1.', nlNatural:'Ik zie haar vaak.', nlBack:'I see her often'},
+  {rule:2, name:'Negation', en:[['I','Subject'],['do','Auxiliary'],['not','Negation'],['like','Verb'],['coffee','Object']],
+   nlDesc:'Find the Negation token and move it to the end.', nlNatural:'Ik houd niet van koffie.', nlBack:'I hold not of coffee'},
+  {rule:3, name:'Adverbial First', en:[['I','Subject'],['play','Verb'],['football','Object'],['today','Adverb']],
+   nlDesc:'Move the last token to the front, then run V2 so the verb stays at index 1.', nlNatural:'Vandaag speel ik voetbal.', nlBack:'today play I football'},
+  {rule:4, name:'Auxiliary Verb Order', en:[['I','Subject'],['have','Auxiliary'],['worked','Verb'],['here','Adverb'],['for','Adverb'],['years','Adverb']],
+   nlDesc:'Take the token right after the Auxiliary (the participle) and move it to the end.', nlNatural:'Ik heb hier jaren gewerkt.', nlBack:'I have here years worked'},
+  {rule:5, name:'Separable Verb', en:[['I','Subject'],['turn','Verb'],['on','Particle'],['the','Object'],['light','Object']],
+   nlDesc:'Take the token right after the Verb (the particle) and move it to the end.', nlNatural:'Ik doe het licht aan.', nlBack:'I do the light on'}
+];
+
+/* ---------- Dutch: word-for-word, as the Java tool labels it ---------- */
+const NL = [
+  [T('ik','Subject','I'),T('vaak','Other','often'),T('zien','Verb','see'),T('haar','Other','her')],
+  [T('ik','Subject','I'),T('doen','Auxiliary','do'),T('niet','Negation','not'),T('houd','Verb','like'),T('koffie','Other','coffee')],
+  [T('ik','Subject','I'),T('speel','Verb','play'),T('voetbal','Other','football'),T('vandaag','Other','today')],
+  [T('ik','Subject','I'),T('hebben','Auxiliary','have'),T('gewerkt','Other','worked'),T('hier','Other','here'),T('voor','Other','for'),T('jaren','Other','years')],
+  [T('ik','Subject','I'),T('draai','Verb','turn'),T('aan','Other','on'),T('de','Other','the'),T('licht','Other','light')]
+];
+
+/* ---------- other languages: word-for-word in English order ---------- */
+const LANGS = [
+ {code:'ko', name:'Korean', native:'한국어',
+  pipeline:['dropDo','absorbParticle','verbFinal','auxAfterVerb','negBeforeVerb','timeFront'],
+  data:[
+   {lit:[T('나는','Subject','I','I-TOP'),T('자주','Adverb','often','often',{type:'freq'}),T('본다','Verb','see','see-PRES'),T('그녀를','Object','her','she-ACC')],
+    contrast:'The verb goes to the very end (SOV). Dutch pulls the verb forward to slot 2; Korean never does, so object and adverb both come before it.'},
+   {lit:[T('나는','Subject','I','I-TOP'),T('∅','Auxiliary','do','',{dummy:true}),T('안','Negation','not','NEG'),T('좋아한다','Verb','like','like-PRES'),T('커피를','Object','coffee','coffee-ACC')],
+    contrast:'Negation 안 sits directly in front of the verb, at the end of the sentence. Dutch niet comes after the finite verb. The long form 좋아하지 않는다 puts negation after the verb stem instead.'},
+   {lit:[T('나는','Subject','I','I-TOP'),T('한다','Verb','play','do-PRES'),T('축구를','Object','football','football-ACC'),T('오늘','Adverb','today','today',{type:'time'})],
+    contrast:'Fronting 오늘 changes nothing else: the subject stays, the verb stays last. There is no inversion like Dutch vandaag speel ik.'},
+   {lit:[T('나는','Subject','I','I-TOP'),T('왔다','Auxiliary','have','come-PAST'),T('일해','Verb','worked','work-CONN'),T('여기서','Adverb','here','here-LOC',{type:'place'}),T('수년간','Adverb','for years','years-for',{type:'dur'})],
+    contrast:'Main verb first, then the auxiliary, both at the end: 일해 왔다 (work + come = have been working). Dutch splits them: auxiliary in slot 2, participle at the end.'},
+   {lit:[T('나는','Subject','I','I-TOP'),T('켠다','Verb','turn','turn.on-PRES'),T('∅','Particle','on',''),T('불을','Object','the light','light-ACC')],
+    contrast:'켜다 already means "turn on". There is no particle to split off; the whole verb simply goes last.'}
+  ]},
+ {code:'tr', name:'Turkish', native:'Türkçe',
+  pipeline:['proDrop','dropDo','dropPerfectAux','absorbParticle','negSuffix','verbFinal','freqPreverbal','timeFront'],
+  data:[
+   {lit:[T('ben','Subject','I','I'),T('sık sık','Adverb','often','often',{type:'freq'}),T('görüyorum','Verb','see','see-PROG-1SG'),T('onu','Object','her','her-ACC')],
+    contrast:'Verb-final like Korean. The slot right before the verb is the focus slot, so in neutral order the adverb sits there: onu sık sık görüyorum.'},
+   {lit:[T('ben','Subject','I','I'),T('∅','Auxiliary','do','',{dummy:true}),T('değil','Negation','not','not'),T('seviyorum','Verb','like','like-PROG-1SG',{negForm:'sevmiyorum',negGl:'like-NEG-PROG-1SG'}),T('kahveyi','Object','coffee','coffee-ACC')],
+    contrast:'There is no separate negation word. -me- is a suffix inside the verb, between stem and tense: sev-mi-yor-um. Dutch niet is a free word that moves.'},
+   {lit:[T('ben','Subject','I','I'),T('oynuyorum','Verb','play','play-PROG-1SG'),T('futbol','Object','football','football'),T('bugün','Adverb','today','today',{type:'time'})],
+    contrast:'The time word goes first and the verb stays last. No inversion: bugün futbol oynuyorum, not bugün oynuyorum ben futbol.'},
+   {lit:[T('ben','Subject','I','I'),T('∅','Auxiliary','have','',{perfect:true}),T('çalıştım','Verb','worked','work-PAST-1SG',{durForm:'çalışıyorum',durGl:'work-PROG-1SG'}),T('burada','Adverb','here','here',{type:'place'}),T('yıllardır','Adverb','for years','years-for',{type:'dur'})],
+    contrast:'No "have" auxiliary at all. An ongoing situation uses present tense plus -dır on "years", so nothing splits like Dutch heb … gewerkt.'},
+   {lit:[T('ben','Subject','I','I'),T('açıyorum','Verb','turn','open-PROG-1SG'),T('∅','Particle','on',''),T('ışığı','Object','the light','light-ACC')],
+    contrast:'One verb, açmak ("open"), and no particle. The light is "opened", nothing travels to the end.'}
+  ]},
+ {code:'fr', name:'French', native:'Français',
+  pipeline:['dropDo','absorbParticle','frVerbBeforeAdv','frCliticBeforeVerb','frNegWrap','frTimeFront','frAuxCheck','elision'],
+  data:[
+   {lit:[T('je','Subject','I','I'),T('souvent','Adverb','often','often',{type:'freq'}),T('vois','Verb','see','see.1SG'),T('la','Object','her','her',{clitic:true})],
+    contrast:'The finite verb jumps over souvent, just as Dutch zie jumps over vaak. But the pronoun la goes in front of the verb, a slot Dutch never uses for objects.'},
+   {lit:[T('je','Subject','I','I'),T('∅','Auxiliary','do','',{dummy:true}),T('pas','Negation','not','NEG'),T('aime','Verb','like','like.1SG'),T('le café','Object','coffee','the coffee')],
+    contrast:'Negation has two parts that wrap the finite verb: ne before, pas after. Dutch uses one word, niet, placed after the verb.'},
+   {lit:[T('je','Subject','I','I'),T('joue','Verb','play','play.1SG'),T('au foot','Object','football','at.the football'),T("aujourd'hui",'Adverb','today','today',{type:'time'})],
+    contrast:"The fronted adverb takes a comma, then normal subject + verb: aujourd'hui, je joue. Dutch would invert to vandaag speel ik. French has no V2."},
+   {lit:[T('je','Subject','I','I'),T('ai','Auxiliary','have','have.1SG'),T('travaillé','Verb','worked','worked'),T('ici','Adverb','here','here',{type:'place'}),T('pendant des années','Adverb','for years','during some years',{type:'dur'})],
+    contrast:'Auxiliary and participle stay side by side (ai travaillé), like English. French has no verb bracket, so nothing moves to the end.'},
+   {lit:[T('je','Subject','I','I'),T('allume','Verb','turn','light.up.1SG'),T('∅','Particle','on',''),T('la lumière','Object','the light','the light')],
+    contrast:'One verb, allumer. There is no particle, so nothing is left behind at the end of the clause.'}
+  ]},
+ {code:'sk', name:'Slovak', native:'Slovenčina',
+  pipeline:['proDrop','dropDo','absorbParticle','negPrefix','timeFront','clitic2nd'],
+  data:[
+   {lit:[T('ja','Subject','I','I'),T('často','Adverb','often','often',{type:'freq'}),T('vidím','Verb','see','see.1SG'),T('ju','Object','her','her.ACC',{clitic:true})],
+    contrast:'Slovak also has a "second position" rule, but for small unstressed words (clitics), not verbs. Slot 2 is taken by ju: často ju vidím.'},
+   {lit:[T('ja','Subject','I','I'),T('∅','Auxiliary','do','',{dummy:true}),T('nie','Negation','not','not'),T('mám rád','Verb','like','have.1SG glad.M',{negForm:'nemám rád',negGl:'NEG-have.1SG glad.M'}),T('kávu','Object','coffee','coffee.ACC')],
+    contrast:'Negation ne- is written onto the verb as a prefix (nemám). Dutch niet stays a separate word.'},
+   {lit:[T('ja','Subject','I','I'),T('hrám','Verb','play','play.1SG'),T('futbal','Object','football','football'),T('dnes','Adverb','today','today',{type:'time'})],
+    contrast:'The verb looks second only because ja is dropped. Dnes ja hrám futbal (verb third, stress on ja) is also correct, so Slovak is not V2.'},
+   {lit:[T('ja','Subject','I','I'),T('som','Auxiliary','have','AUX.1SG',{clitic:true}),T('pracoval','Verb','worked','worked.M'),T('tu','Adverb','here','here',{type:'place'}),T('roky','Adverb','for years','years',{type:'dur'})],
+    contrast:'The auxiliary som is a clitic, so it must be second and the participle comes first: pracoval som. Dutch keeps the auxiliary in slot 2 but sends the participle to the end.'},
+   {lit:[T('ja','Subject','I','I'),T('zapínam','Verb','turn','on-turn.1SG'),T('∅','Particle','on',''),T('svetlo','Object','the light','light')],
+    contrast:'The "on" meaning is the prefix za- in zapínam. It is fused to the verb and never separates, unlike Dutch aan, which moves to the end.'}
+  ]}
+];
+
+/* ---------- rule engine helpers ---------- */
+const find = (ts, p) => ts.findIndex(p);
+const isR = r => t => t.role === r;
+function moveTo(ts, from, to){ const a = ts.slice(); const [x] = a.splice(from, 1); a.splice(to, 0, x); return a; }
+
+/* Dutch rules: straight port of RuleEngine.java */
+function nlV2(ts){
+  const a = ts.slice(); const v = find(a, isR('Verb'));
+  if (v > 1){ const [x] = a.splice(v, 1); a.splice(1, 0, x); return {tokens:a, moved:[x.id]}; }
+  return {tokens:a, moved:[], note:'The verb is already at index 0 or 1, so nothing moves.'};
+}
+function nlToEnd(ts, i, what){
+  if (i < 0 || i >= ts.length) return {tokens:ts.slice(), moved:[], note:`No ${what} found: the list is returned unchanged.`};
+  const a = moveTo(ts, i, ts.length - 1); return {tokens:a, moved:[a[a.length-1].id]};
+}
+const NL_RULES = {
+  1:{label:'Verb Second (V2)', fn:nlV2},
+  2:{label:'Negation', fn:ts => nlToEnd(ts, find(ts, isR('Negation')), 'Negation token')},
+  3:{label:'Adverbial First', fn:ts => {
+      const a = ts.slice(); const last = a.pop(); a.unshift(last);
+      const r = nlV2(a); return {tokens:r.tokens, moved:[last.id, ...r.moved]}; }},
+  4:{label:'Auxiliary Verb Order', fn:ts => { const i = find(ts, isR('Auxiliary')); return nlToEnd(ts, i < 0 ? -1 : i + 1, 'Auxiliary'); }},
+  5:{label:'Separable Verb', fn:ts => { const i = find(ts, isR('Verb')); return nlToEnd(ts, i < 0 ? -1 : i + 1, 'Verb'); }}
+};
+
+/* Rules for the other languages. Each returns null when it does not apply. */
+function removeWhere(ts, p){ const i = find(ts, p); if (i < 0) return null; const a = ts.slice(); a.splice(i, 1); return {tokens:a, moved:[]}; }
+function negIntoVerb(ts){
+  const n = find(ts, isR('Negation')); if (n < 0) return null;
+  const a = ts.slice(); a.splice(n, 1); const v = find(a, isR('Verb'));
+  a[v] = {...a[v], w:a[v].negForm, gl:a[v].negGl}; return {tokens:a, moved:[a[v].id]};
+}
+function beforeVerb(ts, p){
+  const i = find(ts, p), v = find(ts, isR('Verb'));
+  if (i < 0 || v < 0 || i === v - 1) return null;
+  const a = ts.slice(); const [x] = a.splice(i, 1); a.splice(find(a, isR('Verb')), 0, x); return {tokens:a, moved:[x.id]};
+}
+function toFront(ts, comma){
+  const i = find(ts, t => t.role === 'Adverb' && t.type === 'time'); if (i <= 0) return null;
+  const a = moveTo(ts, i, 0); if (comma) a[0] = {...a[0], w:a[0].w + ','}; return {tokens:a, moved:[a[0].id]};
+}
+const R = {
+  proDrop:{label:'Drop the subject pronoun', note:'The verb ending already says who does it, so the pronoun is left out.',
+    fn:ts => removeWhere(ts, isR('Subject'))},
+  dropDo:{label:'No do-support', note:'English "do" is a dummy auxiliary with no equivalent here, so it disappears.',
+    fn:ts => removeWhere(ts, t => t.role === 'Auxiliary' && t.dummy)},
+  dropPerfectAux:{label:'No "have" auxiliary', note:'Ongoing duration is present tense plus -dır, so "have" disappears and the verb changes tense.',
+    fn:ts => { const r = removeWhere(ts, t => t.role === 'Auxiliary' && t.perfect); if (!r) return null;
+      const v = find(r.tokens, isR('Verb')); const x = r.tokens[v];
+      if (x.durForm) r.tokens[v] = {...x, w:x.durForm, gl:x.durGl}; r.moved = [x.id]; return r; }},
+  absorbParticle:{label:'Particle absorbed', note:'"on" has no word of its own: the meaning is already inside the verb.',
+    fn:ts => removeWhere(ts, isR('Particle'))},
+  negSuffix:{label:'Negation becomes a suffix', note:'-me- goes inside the verb, between stem and tense: sev-mi-yor-um.', fn:negIntoVerb},
+  negPrefix:{label:'Negation becomes a prefix', note:'ne- is written together with the verb: nemám.', fn:negIntoVerb},
+  verbFinal:{label:'Verb to the end (SOV)', note:'The main verb closes the sentence.',
+    fn:ts => { const v = find(ts, isR('Verb')); if (v < 0 || v === ts.length - 1) return null;
+      const a = moveTo(ts, v, ts.length - 1); return {tokens:a, moved:[a[a.length-1].id]}; }},
+  auxAfterVerb:{label:'Auxiliary after the main verb', note:'Korean auxiliaries follow the main verb: 일해 + 왔다.',
+    fn:ts => { const i = find(ts, t => t.role === 'Auxiliary' && !t.dummy); if (i < 0 || i === ts.length - 1) return null;
+      const a = moveTo(ts, i, ts.length - 1); return {tokens:a, moved:[a[a.length-1].id]}; }},
+  negBeforeVerb:{label:'Negation right before the verb', note:'Short negation 안 attaches directly in front of the verb.',
+    fn:ts => beforeVerb(ts, isR('Negation'))},
+  freqPreverbal:{label:'Adverb into the pre-verbal slot', note:'The slot before the verb is the focus slot. Neutral order puts the adverb there, not the pronoun.',
+    fn:ts => beforeVerb(ts, t => t.role === 'Adverb' && t.type === 'freq')},
+  timeFront:{label:'Time word to the front', note:'The time word opens the sentence. Nothing else changes place.', fn:ts => toFront(ts, false)},
+  frTimeFront:{label:'Adverbial first, no inversion', note:'The adverb moves to the front with a comma. Subject and verb keep their order.', fn:ts => toFront(ts, true)},
+  frVerbBeforeAdv:{label:'Finite verb before the adverb', note:'The conjugated verb moves in front of adverbs like souvent.',
+    fn:ts => { const s = find(ts, isR('Subject')), v = find(ts, isR('Verb'));
+      if (s < 0 || v <= s + 1 || ts[s+1].role !== 'Adverb') return null;
+      const a = moveTo(ts, v, s + 1); return {tokens:a, moved:[a[s+1].id]}; }},
+  frCliticBeforeVerb:{label:'Pronoun before the verb', note:'Unstressed object pronouns (la, le, lui) sit directly before the verb.',
+    fn:ts => { const o = find(ts, t => t.role === 'Object' && t.clitic), v = find(ts, isR('Verb'));
+      if (o < 0 || o < v) return null; const a = ts.slice(); const [x] = a.splice(o, 1); a.splice(v, 0, x);
+      return {tokens:a, moved:[x.id]}; }},
+  frNegWrap:{label:'Negation wraps the verb', note:'ne goes in front of the finite verb, pas right after it.',
+    fn:ts => { const n = find(ts, isR('Negation')); if (n < 0) return null;
+      const a = ts.slice(); const [pas] = a.splice(n, 1); const v = find(a, isR('Verb'));
+      const ne = {w:'ne', role:'Negation', en:'(not)', gl:'NEG', id:++uid};
+      a.splice(v, 0, ne); a.splice(v + 2, 0, pas); return {tokens:a, moved:[ne.id, pas.id]}; }},
+  frAuxCheck:{label:'Auxiliary and participle stay together', note:'Nothing moves. French has no verb bracket, unlike Dutch.',
+    fn:ts => { const a = find(ts, isR('Auxiliary')); return (a >= 0 && ts[a+1] && ts[a+1].role === 'Verb') ? {tokens:ts.slice(), moved:[]} : null; }},
+  elision:{label:'Elision', note:"je and ne lose their vowel before a vowel: j', n'.",
+    fn:ts => { const a = ts.slice(); let hit = null;
+      for (let i = 0; i < a.length - 1; i++){
+        if (['je','ne'].includes(a[i].w) && /^[aeiouhéèêàâîôû]/i.test(a[i+1].w)){
+          const nx = a[i+1];
+          a.splice(i, 2, {...nx, w:a[i].w[0] + "'" + nx.w, en:a[i].en + ' ' + nx.en, gl:a[i].gl + '=' + nx.gl});
+          hit = nx.id;
+        }
+      }
+      return hit ? {tokens:a, moved:[hit]} : null; }},
+  clitic2nd:{label:'Clitic to second position', note:'Unstressed pronouns and the auxiliary som must be the second element of the clause.',
+    fn:ts => { const c = find(ts, t => t.clitic); if (c < 0 || c === 1 || ts.length < 2) return null;
+      const a = moveTo(ts, c, 1); return {tokens:a, moved:[a[1].id]}; }}
+};
+
+/* ---------- build steps ---------- */
+const withIds = ts => ts.map(t => ({...t, id:++uid}));
+const LIT_NOTE = 'Each English word swapped for its translation, still in English order.';
+function buildSteps(lit, pipeline){
+  let cur = lit;
+  const steps = [{label:'Word-for-word', note:LIT_NOTE, tokens:cur, moved:[]}];
+  for (const key of pipeline){
+    const r = R[key].fn(cur.map(t => ({...t})));
+    if (r){ cur = r.tokens; steps.push({label:R[key].label, note:R[key].note, tokens:cur, moved:r.moved || []}); }
+  }
+  return steps;
+}
+const CACHE = LANGS.map(L => L.data.map(d => buildSteps(withIds(d.lit), L.pipeline)));
+const NL_LIT = NL.map(withIds);
+function nlSteps(si, rule){
+  const lit = NL_LIT[si]; const r = NL_RULES[rule].fn(lit);
+  return [{label:'Word-for-word', note:LIT_NOTE, tokens:lit, moved:[]},
+          {label:'Rule ' + rule + ': ' + NL_RULES[rule].label, note:r.note || S[rule-1].nlDesc, tokens:r.tokens, moved:r.moved}];
+}
+
+/* ---------- state ---------- */
+const state = {s:0, nlRule:1, pos:{}, steps:{}};
+const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+let timer = null;
+
+const cap = s => s.charAt(0).toUpperCase() + s.slice(1);
+const sentenceOf = ts => cap(ts.map(t => t.w).join(' ')) + '.';
+
+/* ---------- static UI ---------- */
+function buildPicker(){
+  document.getElementById('picker').innerHTML = S.map((x, i) =>
+    `<button data-i="${i}" aria-pressed="${i === state.s}"><small>Rule ${x.rule}</small>${esc(x.en.map(e => e[0]).join(' '))}</button>`).join('');
+}
+document.getElementById('picker').addEventListener('click', e => {
+  const b = e.target.closest('button'); if (!b) return;
+  selectSentence(+b.dataset.i);
+});
+document.getElementById('legend').innerHTML = Object.keys(ROLE_VAR).map(r => `<span style="${roleStyle(r)}"><i></i>${r}</span>`).join('');
+
+function cardShell(code, title, native){
+  return `<article class="card" data-lang="${code}">
+    <div><h2>${title} <span>${native}</span></h2>
+    <div class="il" data-part="il"></div>
+    <p class="contrast" data-part="contrast"></p></div>
+    <div><p class="sub">How the rule engine gets there</p>
+    <div class="row" data-part="row"></div>
+    ${stepperHTML()}</div></article>`;
+}
+function stepperHTML(){
+  return `<div class="stepper"><button data-act="prev" aria-label="Previous step">‹</button><button data-act="next" aria-label="Next step">›</button>
+    <span class="lbl" data-part="lbl"></span><span class="cnt" data-part="cnt"></span></div>
+    <p class="note" data-part="note"></p><ol class="steps" data-part="steps"></ol>`;
+}
+function buildGrid(){
+  const grid = document.getElementById('grid');
+  grid.innerHTML = `<article class="card nl" data-lang="nl">
+      <div><h2>Dutch <span>Nederlands, the Babel Gavel reference</span></h2>
+      <p class="sub">Natural Dutch</p><p class="natural" data-part="natural"></p><p class="back" data-part="back"></p>
+      <p class="sub"><label>Rule applied by the tool <select data-part="rule">${Object.entries(NL_RULES).map(([k,v]) => `<option value="${k}">${k}: ${v.label}</option>`).join('')}</select></label></p></div>
+      <div><p class="sub">Babel Gavel output</p><div class="row" data-part="row"></div>${stepperHTML()}</div>
+    </article>` + LANGS.map(L => cardShell(L.code, L.name, L.native)).join('');
+  grid.addEventListener('click', e => {
+    const card = e.target.closest('.card'); if (!card) return; const code = card.dataset.lang;
+    const act = e.target.closest('[data-act]'); const st = e.target.closest('[data-step]');
+    stopPlay();
+    if (act){ const n = state.steps[code].length; state.pos[code] = Math.max(0, Math.min(n - 1, state.pos[code] + (act.dataset.act === 'next' ? 1 : -1))); renderSteps(code); }
+    if (st){ state.pos[code] = +st.dataset.step; renderSteps(code); }
+  });
+  grid.querySelector('[data-part="rule"]').addEventListener('change', e => {
+    stopPlay(); state.nlRule = +e.target.value; state.steps.nl = nlSteps(state.s, state.nlRule);
+    state.pos.nl = 1; renderSteps('nl');
+  });
+}
+
+/* ---------- rendering ---------- */
+const part = (code, p) => document.querySelector(`.card[data-lang="${code}"] [data-part="${p}"]`);
+function chipsHTML(step){
+  return step.tokens.map(t => `<span class="chip${step.moved.includes(t.id) ? ' moved' : ''}" data-id="${t.id}" style="${roleStyle(t.role)}"><b>${esc(t.w)}</b><small>${esc(t.en)}</small></span>`).join('');
+}
+function renderSteps(code){
+  const steps = state.steps[code], i = state.pos[code], step = steps[i];
+  const row = part(code, 'row');
+  const first = {}; row.querySelectorAll('.chip').forEach(c => first[c.dataset.id] = c.getBoundingClientRect());
+  row.innerHTML = chipsHTML(step);
+  if (!reduce && Object.keys(first).length){
+    row.querySelectorAll('.chip').forEach(c => {
+      const f = first[c.dataset.id], l = c.getBoundingClientRect();
+      if (f){ const dx = f.left - l.left, dy = f.top - l.top;
+        if (dx || dy) c.animate([{transform:`translate(${dx}px,${dy}px)`},{transform:'none'}], {duration:480, easing:'cubic-bezier(.2,.7,.2,1)'}); }
+      else c.animate([{opacity:0, transform:'translateY(-6px)'},{opacity:1, transform:'none'}], {duration:320});
+    });
+  }
+  part(code, 'lbl').textContent = step.label;
+  part(code, 'cnt').textContent = `Step ${i + 1} of ${steps.length}`;
+  part(code, 'note').textContent = step.note;
+  part(code, 'steps').innerHTML = steps.map((s, k) => `<li><button data-step="${k}"${k === i ? ' aria-current="step"' : ''}>${k + 1}. ${esc(s.label)}</button></li>`).join('');
+  const card = document.querySelector(`.card[data-lang="${code}"]`);
+  card.querySelector('[data-act="prev"]').disabled = i === 0;
+  card.querySelector('[data-act="next"]').disabled = i === steps.length - 1;
+}
+function renderFinal(L, li){
+  const d = L.data[state.s], steps = CACHE[li][state.s], fin = steps[steps.length - 1].tokens;
+  part(L.code, 'il').innerHTML = fin.map((t, k) =>
+    `<div><b>${esc((k === 0 ? cap(t.w) : t.w) + (k === fin.length - 1 ? '.' : ''))}</b><small>${esc(t.gl)}</small></div>`).join('');
+  part(L.code, 'contrast').textContent = d.contrast;
+}
+function selectSentence(i){
+  stopPlay();
+  state.s = i; state.nlRule = S[i].rule;
+  buildPicker();
+  const x = S[i];
+  document.getElementById('enSentence').innerHTML = x.en.map(([w, r]) => `<span class="ew" style="${roleStyle(r)}">${esc(w)}</span>`).join('');
+  document.getElementById('heroMeta').innerHTML = `<span>Verification sentence for Dutch <strong>Rule ${x.rule}: ${esc(x.name)}</strong></span><span>${esc(x.nlDesc)}</span>`;
+  part('nl', 'natural').textContent = x.nlNatural;
+  part('nl', 'back').textContent = 'Word by word: ' + x.nlBack;
+  part('nl', 'rule').value = String(x.rule);
+  state.steps.nl = nlSteps(i, x.rule);
+  LANGS.forEach((L, li) => { state.steps[L.code] = CACHE[li][i]; renderFinal(L, li); });
+  playAll();
+}
+
+/* ---------- orchestrated playback ---------- */
+const codes = () => ['nl', ...LANGS.map(L => L.code)];
+function stopPlay(){ if (timer){ clearInterval(timer); timer = null; } }
+function playAll(){
+  stopPlay();
+  if (reduce){ codes().forEach(c => { state.pos[c] = state.steps[c].length - 1; renderSteps(c); }); return; }
+  codes().forEach(c => { state.pos[c] = 0; renderSteps(c); });
+  timer = setInterval(() => {
+    let busy = false;
+    codes().forEach(c => { if (state.pos[c] < state.steps[c].length - 1){ state.pos[c]++; renderSteps(c); busy = true; } });
+    if (!busy) stopPlay();
+  }, 900);
+}
+document.getElementById('playBtn').addEventListener('click', playAll);
+
+/* ---------- journal export ---------- */
+document.getElementById('copyBtn').addEventListener('click', async e => {
+  const x = S[state.s], nlOut = nlSteps(state.s, x.rule)[1].tokens.map(t => t.w).join(' ');
+  let txt = `English: ${x.en.map(e => e[0]).join(' ')}\nDutch, Babel Gavel Rule ${x.rule} (${x.name}): ${nlOut}\nDutch, natural: ${x.nlNatural}\n`;
+  LANGS.forEach((L, li) => {
+    const fin = CACHE[li][state.s].slice(-1)[0].tokens;
+    txt += `\n${L.name}: ${sentenceOf(fin)}\n  Gloss: ${fin.map(t => t.gl).join(' ')}\n  Contrast: ${L.data[state.s].contrast}\n`;
+  });
+  const btn = e.currentTarget;
+  try { await navigator.clipboard.writeText(txt); btn.textContent = 'Copied'; }
+  catch(err){
+    const ta = document.createElement('textarea'); ta.value = txt; document.body.appendChild(ta); ta.select();
+    try { document.execCommand('copy'); btn.textContent = 'Copied'; } catch(_){ btn.textContent = 'Copy failed'; }
+    ta.remove();
+  }
+  setTimeout(() => btn.textContent = 'Copy for Quest Journal', 1600);
+});
+
+/* ---------- contrast table ---------- */
+const TABLE = [
+  ['Where the finite verb goes',
+   ['Always slot 2 in a main clause (V2)','Ik zie haar vaak.'],
+   ['Always last (SOV)','나는 자주 그녀를 본다.'],
+   ['Always last (SOV)','Onu sık sık görüyorum.'],
+   ['After the subject, before adverbs; no V2','Je la vois souvent.'],
+   ['Free; slot 2 is for clitics, not verbs','Často ju vidím.']],
+  ['Fronting a time word',
+   ['Verb and subject swap','Vandaag speel ik voetbal.'],
+   ['Nothing else moves','오늘 나는 축구를 한다.'],
+   ['Nothing else moves','Bugün futbol oynuyorum.'],
+   ['Comma, no inversion',"Aujourd'hui, je joue au foot."],
+   ['No required inversion; ja may stay','Dnes (ja) hrám futbal.']],
+  ['Negation',
+   ['Free word niet, after the finite verb','Ik houd niet van koffie.'],
+   ['안 right before the verb','나는 커피를 안 좋아한다.'],
+   ['Suffix inside the verb','Kahveyi sev-mi-yor-um.'],
+   ['Two words around the verb',"Je n'aime pas le café."],
+   ['Prefix written onto the verb','Ne-mám rád kávu.']],
+  ['Verbs that split',
+   ['Particle and participle go to the end','Ik doe het licht aan. Ik heb … gewerkt.'],
+   ['Nothing splits; auxiliary follows the main verb','일해 왔다'],
+   ['Nothing splits; no "have" auxiliary','Burada yıllardır çalışıyorum.'],
+   ['Nothing splits; aux + participle adjacent',"J'ai travaillé ici."],
+   ['Prefix za- never splits; aux som takes slot 2','Zapínam svetlo. Pracoval som tu.']]
+];
+document.getElementById('tbody').innerHTML = TABLE.map(r =>
+  `<tr><th scope="row">${esc(r[0])}</th>${r.slice(1).map((c, k) => `<td${k === 0 ? ' class="nlcol"' : ''}>${esc(c[0])}<em>${esc(c[1])}</em></td>`).join('')}</tr>`).join('');
+
+/* ---------- init ---------- */
+buildGrid();
+selectSentence(0);
+</script>
+</body>
+</html>
