@@ -417,19 +417,32 @@ const part = (code, p) => document.querySelector(`.card[data-lang="${code}"] [da
 function chipsHTML(step){
   return step.tokens.map(t => `<span class="chip${step.moved.includes(t.id) ? ' moved' : ''}" data-id="${t.id}" style="${roleStyle(t.role)}"><b>${esc(t.w)}</b><small>${esc(t.en)}</small></span>`).join('');
 }
+function revealRow(row, step, sel){
+  const chips = [...row.querySelectorAll(sel || '.chip')];
+  if (reduce){ chips.forEach(c => { c.style.opacity = 1; c.style.filter = 'none'; }); return; }
+  chips.forEach((c, k) => {
+    c.animate(
+      [{opacity:0, filter:'blur(7px)'}, {opacity:1, filter:'blur(0)'}],
+      {duration:420, delay:k * 55, easing:'cubic-bezier(.2,.7,.2,1)', fill:'both'}
+    );
+  });
+}
+function revealHero(html){
+  const el = document.getElementById('enSentence');
+  const swap = () => { el.innerHTML = html; revealRow(el, null, '.ew'); };
+  if (!reduce && el.children.length){
+    const out = el.animate([{opacity:1, filter:'blur(0)'}, {opacity:0, filter:'blur(5px)'}], {duration:130, easing:'ease-in'});
+    out.onfinish = swap;
+  } else swap();
+}
 function renderSteps(code){
   const steps = state.steps[code], i = state.pos[code], step = steps[i];
   const row = part(code, 'row');
-  const first = {}; row.querySelectorAll('.chip').forEach(c => first[c.dataset.id] = c.getBoundingClientRect());
-  row.innerHTML = chipsHTML(step);
-  if (!reduce && Object.keys(first).length){
-    row.querySelectorAll('.chip').forEach(c => {
-      const f = first[c.dataset.id], l = c.getBoundingClientRect();
-      if (f){ const dx = f.left - l.left, dy = f.top - l.top;
-        if (dx || dy) c.animate([{transform:`translate(${dx}px,${dy}px)`},{transform:'none'}], {duration:480, easing:'cubic-bezier(.2,.7,.2,1)'}); }
-      else c.animate([{opacity:0, transform:'translateY(-6px)'},{opacity:1, transform:'none'}], {duration:320});
-    });
-  }
+  const swap = () => { row.innerHTML = chipsHTML(step); revealRow(row, step); };
+  if (!reduce && row.children.length){
+    const out = row.animate([{opacity:1, filter:'blur(0)'}, {opacity:0, filter:'blur(5px)'}], {duration:130, easing:'ease-in'});
+    out.onfinish = swap;
+  } else swap();
   part(code, 'lbl').textContent = step.label;
   part(code, 'cnt').textContent = `Step ${i + 1} of ${steps.length}`;
   part(code, 'note').textContent = step.note;
@@ -449,7 +462,7 @@ function selectSentence(i){
   state.s = i; state.nlRule = S[i].rule;
   buildPicker();
   const x = S[i];
-  document.getElementById('enSentence').innerHTML = x.en.map(([w, r]) => `<span class="ew" style="${roleStyle(r)}">${esc(w)}</span>`).join('');
+  revealHero(x.en.map(([w, r]) => `<span class="ew" style="${roleStyle(r)}">${esc(w)}</span>`).join(''));
   document.getElementById('heroMeta').innerHTML = `<span>Verification sentence for Dutch <strong>Rule ${x.rule}: ${esc(x.name)}</strong></span><span>${esc(x.nlDesc)}</span>`;
   part('nl', 'natural').textContent = x.nlNatural;
   part('nl', 'back').textContent = 'Word by word: ' + x.nlBack;
